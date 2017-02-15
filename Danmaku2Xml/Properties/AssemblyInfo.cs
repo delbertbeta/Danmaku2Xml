@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Danmaku2Xml")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("一个将 Bilibili 直播弹幕姬保存的 txt 弹幕转换为 Bilibili 标准 XML 文件的小工具。")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("delbertbeta")]
 [assembly: AssemblyProduct("Danmaku2Xml")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright ©delbertbeta  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
