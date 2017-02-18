@@ -1,0 +1,66 @@
+﻿<UserControl
+    x:Class="Danmaku2Xml.Controller.AddNewBreakPointControll"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Danmaku2Xml.Controller"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Grid BorderBrush="Gray" Padding="5,5,5,5" Grid.Row="0" Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Tool: " Grid.Row="0" Grid.Column="0" />
+            <TextBlock Text="Start Time: " Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,4">
+                <TextBox Name="StartTimeHTextBox" PlaceholderText="hh" InputScope="Number" />
+                <TextBox Name="StartTimeMTextBox" PlaceholderText="mm" InputScope="Number" />
+                <TextBox Name="StartTimeSTextBox" PlaceholderText="ss" InputScope="Number" />
+            </StackPanel>
+            <TextBlock Text="Last Time: " Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" />
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,4">
+                <TextBox Name="lastTimeHTextBox" PlaceholderText="hh" InputScope="Number" />
+                <TextBox Name="lastTimeMTextBox" PlaceholderText="mm" InputScope="Number" />
+                <TextBox Name="lastTimeSTextBox" PlaceholderText="ss" InputScope="Number" />
+            </StackPanel>
+            <Button Content="Calculate" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Name="CalculateButton" Click="CalculateButton_Click" />
+
+        </Grid>
+
+        <TextBlock Text="End Time: " Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" />
+        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,4">
+            <TextBox Name="EndTimeHTextBox" PlaceholderText="hh" InputScope="Number" />
+            <TextBox Name="EndTimeMTextBox" PlaceholderText="mm" InputScope="Number" />
+            <TextBox Name="EndTimeSTextBox" PlaceholderText="ss" InputScope="Number" />
+        </StackPanel>
+        <TextBlock Text="Next Start Time: " Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" />
+        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,4">
+            <TextBox Name="NextStartTimeHTextBox" PlaceholderText="hh" InputScope="Number" />
+            <TextBox Name="NextStartTimeMTextBox" PlaceholderText="mm" InputScope="Number" />
+            <TextBox Name="NextStartTimeSTextBox" PlaceholderText="ss" InputScope="Number" />
+        </StackPanel>
+        <Button Content="Add" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" Name="AddButton" Click="AddButton_Click" />
+    </Grid>
+</UserControl>
