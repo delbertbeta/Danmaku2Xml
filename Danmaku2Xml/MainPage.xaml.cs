@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.Core;
+using Windows.Data.Xml.Dom;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Core;
@@ -50,6 +51,7 @@ namespace Danmaku2Xml
                 {
                     AddBreakPointButton.IsEnabled = true;
                     ExportButton.IsEnabled = true;
+                    GenerateButton.IsEnabled = true;
 
                     targetDanmakuList.Clear();
                     foreach (Model.Danmaku danmaku in danmakuList)
@@ -61,6 +63,7 @@ namespace Danmaku2Xml
                 {
                     AddBreakPointButton.IsEnabled = false;
                     ExportButton.IsEnabled = false;
+                    GenerateButton.IsEnabled = false;
                 }
             }
         }
@@ -69,6 +72,7 @@ namespace Danmaku2Xml
         {
             CoreApplicationView newView = CoreApplication.CreateNewView();
             int newViewId = 0;
+
             await newView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 Frame frame = new Frame();
@@ -85,17 +89,149 @@ namespace Danmaku2Xml
         private async void AddBreakPointButton_Click(object sender, RoutedEventArgs e)
         {
             Model.BreakPoint breakPoint = new Model.BreakPoint();
+
+            DateTime lastStartTime;
+
+            if (breakPointList.Count > 0)
+            {
+                lastStartTime = breakPointList[breakPointList.Count - 1].EndTime;
+            }
+            else
+            {
+                lastStartTime = DateTime.Parse("0:0:0");
+            }
+
+            List<object> dataContext = new List<object>();
+            dataContext.Add(lastStartTime);
+            dataContext.Add(breakPoint);
             var dialog = new ContentDialog()
             {
                 Title = "Add a break point",
                 Content = new Controller.AddNewBreakPointControll(),
-                DataContext = breakPoint
+                DataContext = dataContext
             };
 
             await dialog.ShowAsync();
+            if (((Model.BreakPoint)dataContext[1]).LastTime.TimeOfDay != DateTime.Parse("0:0:0").TimeOfDay)
+            {
+                breakPointList.Add(breakPoint);
+            }
 
-            breakPointList.Add(breakPoint);
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var buttonParent = button.Parent as StackPanel;
+            var breakPoint = buttonParent.DataContext as Model.BreakPoint;
+
+            breakPointList.Remove(breakPoint);
+        }
+
+        private void GenerateButton_Click(object sender, RoutedEventArgs e)
+        {
+            MyProgressRing.IsActive = true;
+
+            string endTimeH = (EndTimeHTextBox.Text != "") ? EndTimeHTextBox.Text : "0";
+            string endTimeM = (EndTimeMTextBox.Text != "") ? EndTimeMTextBox.Text : "0";
+            string endTimeS = (EndTimeSTextBox.Text != "") ? EndTimeSTextBox.Text : "0";
+            string endTimeString = $"{endTimeH}:{endTimeM}:{endTimeS}";
+            DateTime endTime = DateTime.Parse(endTimeString);
+
+            string startTimeH = (StartTimeHTextBox.Text != "") ? StartTimeHTextBox.Text : "0";
+            string startTimeM = (StartTimeMTextBox.Text != "") ? StartTimeMTextBox.Text : "0";
+            string startTimeS = (StartTimeSTextBox.Text != "") ? StartTimeSTextBox.Text : "0";
+            string startTimeString = $"{startTimeH}:{startTimeM}:{startTimeS}";
+            DateTime startTime = DateTime.Parse(startTimeString);
+
+            var tempDanmakuList = new ObservableCollection<Model.Danmaku>();
+            foreach (var danmaku in danmakuList)
+            {
+                if (danmaku.Time < startTime || danmaku.Time > endTime)
+                {
+                    continue;
+                }
+
+                var danmakuToAdd = danmaku;
+                DateTime timeInTimeLine = danmaku.Time.Subtract(startTime.TimeOfDay);
+
+                bool isInBreakPoint = false;
+
+                foreach (Model.BreakPoint breakPoint in breakPointList)
+                {
+                    if (danmaku.Time > breakPoint.StartTime && danmaku.Time < breakPoint.EndTime)
+                    {
+                        isInBreakPoint = true;
+                        break;
+                    }
+                    if (danmaku.Time >= breakPoint.EndTime)
+                    {
+                        timeInTimeLine = timeInTimeLine.Subtract(breakPoint.LastTime.TimeOfDay);
+                    }
+
+                }
+
+                if (isInBreakPoint)
+                {
+                    continue;
+                }
+
+                danmakuToAdd.TimeInTimeLine = timeInTimeLine;
+
+                tempDanmakuList.Add(danmakuToAdd);
+
+            }
+
+            targetDanmakuList.Clear();
+            foreach (var danmaku in tempDanmakuList)
+            {
+                targetDanmakuList.Add(danmaku);
+            }
+            MyProgressRing.IsActive = false;
+        }
+
+        private async void ExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            var fileDialog = new Windows.Storage.Pickers.FileSavePicker();
+            fileDialog.SuggestedFileName = "danmaku";
+            fileDialog.DefaultFileExtension = ".xml";
+            fileDialog.FileTypeChoices.Add("danmaku", new List<string>() { ".xml" });
+
+            var file = await fileDialog.PickSaveFileAsync();
+            
+            if (file != null)
+            {
+                var fileStream = await file.OpenStreamForWriteAsync();
+                StreamWriter sw = new StreamWriter(fileStream);
+                await sw.WriteLineAsync("<?xml version=\"1.0\"?>");
+                await sw.WriteLineAsync("<i xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">");
+
+                Random random = new Random(Convert.ToInt32(DateTime.Now.TimeOfDay.TotalSeconds));
+                foreach (var danmaku in targetDanmakuList)
+                {
+                    string timeToAppear = Convert.ToString(Convert.ToInt32((danmaku.TimeInTimeLine.TimeOfDay.TotalSeconds))) + "." + Convert.ToString(random.Next(0, 999));
+
+                    //  <d p="2669.27,1,25,16777215,1427278336,0,0,0">星星！！！</d>
+                    await sw.WriteLineAsync($"<d p=\"{timeToAppear},1,25,16777215,{(danmaku.Time - new DateTime(1970, 1, 1)).TotalSeconds},0,0,0\">{danmaku.Content}</d>");
+                }
+
+                await sw.WriteLineAsync("</i>");
+                sw.Dispose();
+
+            }
+            else
+            {
+
+            }
+
+        }
+
+        private void PasteButton_Click(object sender, RoutedEventArgs e)
+        {
+            EndTimeHTextBox.Text = App.clipBoard.Hour.ToString();
+            EndTimeMTextBox.Text = App.clipBoard.Minute.ToString();
+            EndTimeSTextBox.Text = App.clipBoard.Second.ToString();
         }
     }
-    
+
 }

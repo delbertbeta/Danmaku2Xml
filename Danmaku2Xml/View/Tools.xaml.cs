@@ -26,5 +26,37 @@ namespace Danmaku2Xml.View
         {
             this.InitializeComponent();
         }
+
+
+        private void CalculateButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            string startTimeH = (StartTimeHTextBox.Text != "") ? StartTimeHTextBox.Text : "0";
+            string startTimeM = (StartTimeMTextBox.Text != "") ? StartTimeMTextBox.Text : "0";
+            string startTimeS = (StartTimeSTextBox.Text != "") ? StartTimeSTextBox.Text : "0";
+
+            string startTimeString = $"{startTimeH}:{startTimeM}:{startTimeS}";
+            DateTime startTime = DateTime.Parse(startTimeString);
+
+            string lastTimeH = (lastTimeHTextBox.Text != "") ? lastTimeHTextBox.Text : "0";
+            string lastTimeM = (lastTimeMTextBox.Text != "") ? lastTimeMTextBox.Text : "0";
+            string lastTimeS = (lastTimeSTextBox.Text != "") ? lastTimeSTextBox.Text : "0";
+
+            string lastTimeString = $"{lastTimeH}:{lastTimeM}:{lastTimeS}";
+            DateTime lastTime = DateTime.Parse(lastTimeString);
+
+            DateTime endTime = startTime.Add(lastTime.TimeOfDay);
+
+            App.clipBoard = endTime;
+
+        }
+
+        private void lastTimeSTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                CalculateButton_Click(CalculateButton, new RoutedEventArgs());
+            }
+        }
     }
 }
